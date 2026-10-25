@@ -78,7 +78,7 @@ void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
     return;
 }
 
-unsigned long long int heightOfTower(bool *chromosome, bool b)
+unsigned long long int heightOfTower(bool *chromosome, bool b) // Assignment 4.
 {
     unsigned long long int height = 0;
 
@@ -127,17 +127,6 @@ int main(void)
 
     generateBlockHeights(blocks);
     generateChromosomes(generation);
-
-    unsigned long long int sum = 0;
-
-    for (int i = 0; i < numBlocks; i++)
-    {
-        sum += blocks[i];
-    }
-
-    printf("%llu\n", sum);
-    printf("%llu\n", heightOfTower(generation[0], false));
-    printf("%llu\n", heightOfTower(generation[0], true));
 
     return 0;
 }
