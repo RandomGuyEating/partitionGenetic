@@ -79,6 +79,13 @@ void crossOver()
     return;
 }
 
+void printChromosome(bool generation[popSize][chromLength], int nChromosome)
+{
+    for (int j = 0; j < chromLength; j++)
+        printf("%d", generation[nChromosome][j]);
+    printf("\n");
+}
+
 int main(void)
 {
 
@@ -87,6 +94,10 @@ int main(void)
 
     generateBlockHeights(blocks);
     generateChromosome(generation);
+
+    printChromosome(generation, 0);
+    mutateChromosome(generation, 0);
+    printChromosome(generation, 0);
 
     return 0;
 }
