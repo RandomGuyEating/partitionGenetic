@@ -11,6 +11,8 @@
 // number of chromosomes in population
 #define mutateChance 5
 // % chance that a mutation will happen when mutating a chromosome
+int blocks[numBlocks];
+bool generation[popSize][chromLength];
 
 void readFile(int blocks[], int fileLength)
 {
@@ -58,6 +60,7 @@ void generateChromosomes(bool generation[popSize][chromLength])
             generation[i][j] = (rand() > (RAND_MAX / 2));
         }
     }
+
     return;
 }
 
@@ -75,6 +78,26 @@ void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
     return;
 }
 
+unsigned long long int heightOfTower(bool *chromosome, bool b)
+{
+    unsigned long long int height = 0;
+
+    for (int i = 0; i < chromLength; i++)
+    {
+        if (b == true && chromosome[i] == 1)
+        {
+            height += blocks[i];
+        }
+
+        else if (b == false && chromosome[i] == 0)
+        {
+            height += blocks[i];
+        }
+    }
+
+    return height;
+}
+
 void crossOver(bool generation[popSize][chromLength], int chr1, int chr2)
 {
     int cutLocation = rand() % chromLength;
@@ -84,6 +107,8 @@ void crossOver(bool generation[popSize][chromLength], int chr1, int chr2)
         generation[chr1][i] = generation[chr2][i]; // Put chr2 part gene into chr1.
         generation[chr2][i] = temp;                // Put saved chr1 part gene into chr2.
     }
+
+    return;
 }
 
 void printChromosome(bool generation[popSize][chromLength], int nChromosome)
@@ -93,24 +118,26 @@ void printChromosome(bool generation[popSize][chromLength], int nChromosome)
         printf("%d", generation[nChromosome][i]);
     }
     printf("\n");
+
     return;
 }
 
 int main(void)
 {
 
-    int blocks[numBlocks];
-    bool generation[popSize][chromLength];
-
+    generateBlockHeights(blocks);
     generateChromosomes(generation);
 
-    printChromosome(generation, 0);
-    printChromosome(generation, 1);
+    unsigned long long int sum = 0;
 
-    crossOver(generation, 0, 1);
+    for (int i = 0; i < numBlocks; i++)
+    {
+        sum += blocks[i];
+    }
 
-    printChromosome(generation, 0);
-    printChromosome(generation, 1);
+    printf("%llu\n", sum);
+    printf("%llu\n", heightOfTower(generation[0], false));
+    printf("%llu\n", heightOfTower(generation[0], true));
 
     return 0;
 }
