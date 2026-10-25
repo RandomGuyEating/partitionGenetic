@@ -48,10 +48,10 @@ void readFile(int blocks[], int fileLength)
     return;
 }
 
-void generateBlockHeights(int blocks[], int n)
+void generateBlockHeights(int blocks[numBlocks])
 {
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < numBlocks; i++)
     {
         blocks[i] = rand();
     }
