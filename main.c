@@ -49,7 +49,7 @@ void generateBlockHeights(int blocks[numBlocks])
     return;
 }
 
-void generateChromosome(bool generation[popSize][chromLength])
+void generateChromosomes(bool generation[popSize][chromLength])
 {
     for (int i = 0; i < popSize; i++)
     {
@@ -75,17 +75,25 @@ void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
     return;
 }
 
-void crossOver()
+void crossOver(bool generation[popSize][chromLength], int chr1, int chr2)
 {
-
-    return;
+    int cutLocation = rand() % chromLength;
+    for (int i = cutLocation; i < chromLength; i++)
+    {
+        bool temp = generation[chr1][i];           // Copy chr1 gene.
+        generation[chr1][i] = generation[chr2][i]; // Put chr2 part gene into chr1.
+        generation[chr2][i] = temp;                // Put saved chr1 part gene into chr2.
+    }
 }
 
 void printChromosome(bool generation[popSize][chromLength], int nChromosome)
 {
-    for (int j = 0; j < chromLength; j++)
-        printf("%d", generation[nChromosome][j]);
+    for (int i = 0; i < chromLength; i++)
+    {
+        printf("%d", generation[nChromosome][i]);
+    }
     printf("\n");
+    return;
 }
 
 int main(void)
@@ -93,6 +101,16 @@ int main(void)
 
     int blocks[numBlocks];
     bool generation[popSize][chromLength];
+
+    generateChromosomes(generation);
+
+    printChromosome(generation, 0);
+    printChromosome(generation, 1);
+
+    crossOver(generation, 0, 1);
+
+    printChromosome(generation, 0);
+    printChromosome(generation, 1);
 
     return 0;
 }
