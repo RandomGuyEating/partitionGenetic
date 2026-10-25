@@ -3,6 +3,13 @@
 #include <math.h>
 #include <stdbool.h>
 
+#define numBlocks 20
+// number of blocks in the input set
+#define chromLength numBlocks
+// length of chromosome
+#define popSize 10
+// number of chromosomes in population
+
 void mutation()
 {
 
@@ -10,12 +17,6 @@ void mutation()
 }
 
 void crossOver()
-{
-
-    return;
-}
-
-void fillBlocks(int blocks[], int length)
 {
 
     return;
@@ -58,25 +59,25 @@ void generateBlockHeights(int blocks[], int n)
     return;
 }
 
+void generateChromosome(bool generation[popSize][chromLength])
+{
+    for (int i = 0; i < popSize; i++)
+    {
+        for (int j = 0; j < chromLength; j++)
+        {
+            generation[i][j] = (rand() > (RAND_MAX / 2));
+        }
+    }
+    return;
+}
+
 int main(void)
 {
-
-#define numBlocks 20
-    // number of blocks in the input set
-#define chromLength numBlocks
-    // length of chromosome
-#define popSize 10
-    // number of chromosomes in population
 
     int blocks[numBlocks];
     bool generation[popSize][chromLength];
 
     generateBlockHeights(blocks, numBlocks);
-
-    for (int length = 0; length < numBlocks; length++)
-    {
-        printf("%d\n", blocks[length]);
-    }
 
     return 0;
 }
