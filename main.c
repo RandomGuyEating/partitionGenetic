@@ -47,6 +47,17 @@ void readFile(int blocks[], int fileLength)
     return;
 }
 
+void generateBlockHeights(int blocks[], int n)
+{
+
+    for (int i = 0; i < n; i++)
+    {
+        blocks[i] = rand();
+    }
+
+    return;
+}
+
 int main(void)
 {
 
@@ -59,6 +70,13 @@ int main(void)
 
     int blocks[numBlocks];
     bool generation[popSize][chromLength];
+
+    generateBlockHeights(blocks, numBlocks);
+
+    for (int length = 0; length < numBlocks; length++)
+    {
+        printf("%d\n", blocks[length]);
+    }
 
     return 0;
 }
