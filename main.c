@@ -10,18 +10,6 @@
 #define popSize 10
 // number of chromosomes in population
 
-void mutation()
-{
-
-    return;
-}
-
-void crossOver()
-{
-
-    return;
-}
-
 void readFile(int blocks[], int fileLength)
 {
     FILE *fp = fopen("input.txt", "r");
@@ -71,13 +59,34 @@ void generateChromosome(bool generation[popSize][chromLength])
     return;
 }
 
+void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
+{
+
+    for (int nGene = 0; nGene < chromLength; nGene++)
+    {
+        if (rand() > (RAND_MAX / 2))
+        {
+            generation[nChromosome][nGene] = !generation[nChromosome][nGene];
+        }
+    }
+
+    return;
+}
+
+void crossOver()
+{
+
+    return;
+}
+
 int main(void)
 {
 
     int blocks[numBlocks];
     bool generation[popSize][chromLength];
 
-    generateBlockHeights(blocks, numBlocks);
+    generateBlockHeights(blocks);
+    generateChromosome(generation);
 
     return 0;
 }
