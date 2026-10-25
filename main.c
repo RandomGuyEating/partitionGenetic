@@ -9,6 +9,8 @@
 // length of chromosome
 #define popSize 10
 // number of chromosomes in population
+#define mutateChance 5
+// % chance that a mutation will happen when mutating a chromosome
 
 void readFile(int blocks[], int fileLength)
 {
@@ -64,7 +66,7 @@ void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
 
     for (int nGene = 0; nGene < chromLength; nGene++)
     {
-        if (rand() > (RAND_MAX / 2))
+        if (rand() > (RAND_MAX * (mutateChance / 100)))
         {
             generation[nChromosome][nGene] = !generation[nChromosome][nGene];
         }
@@ -91,13 +93,6 @@ int main(void)
 
     int blocks[numBlocks];
     bool generation[popSize][chromLength];
-
-    generateBlockHeights(blocks);
-    generateChromosome(generation);
-
-    printChromosome(generation, 0);
-    mutateChromosome(generation, 0);
-    printChromosome(generation, 0);
 
     return 0;
 }
