@@ -1,0 +1,16 @@
+cat << 'EOF' > .gitignore
+# Compiled Object files & Binaries
+*.o
+*.out
+*.exe
+*.so
+*.a
+a.out
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+EOF
