@@ -40,7 +40,7 @@ void readFile(int blocks[], int fileLength)
     return;
 }
 
-void generateBlockHeights(int blocks[numBlocks])
+void generateBlockHeights()
 {
 
     for (int i = 0; i < numBlocks; i++)
@@ -51,7 +51,7 @@ void generateBlockHeights(int blocks[numBlocks])
     return;
 }
 
-void generateChromosomes(bool generation[popSize][chromLength])
+void generateChromosomes()
 {
     for (int i = 0; i < popSize; i++)
     {
@@ -64,7 +64,7 @@ void generateChromosomes(bool generation[popSize][chromLength])
     return;
 }
 
-void mutateChromosome(bool generation[popSize][chromLength], int nChromosome)
+void mutateChromosome(int nChromosome)
 {
 
     for (int nGene = 0; nGene < chromLength; nGene++)
@@ -98,7 +98,7 @@ unsigned long long int heightOfTower(bool *chromosome, bool b) // Assignment 4.
     return height;
 }
 
-void crossOver(bool generation[popSize][chromLength], int chr1, int chr2)
+void crossOver(int chr1, int chr2)
 {
     int cutLocation = rand() % chromLength;
     for (int i = cutLocation; i < chromLength; i++)
@@ -111,7 +111,7 @@ void crossOver(bool generation[popSize][chromLength], int chr1, int chr2)
     return;
 }
 
-void printChromosome(bool generation[popSize][chromLength], int nChromosome)
+void printChromosome(int nChromosome)
 {
     for (int i = 0; i < chromLength; i++)
     {
@@ -122,11 +122,15 @@ void printChromosome(bool generation[popSize][chromLength], int nChromosome)
     return;
 }
 
+int measureFitness()
+{
+}
+
 int main(void)
 {
 
-    generateBlockHeights(blocks);
-    generateChromosomes(generation);
+    generateBlockHeights();
+    generateChromosomes();
 
     return 0;
 }
