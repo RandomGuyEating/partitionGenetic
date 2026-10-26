@@ -3,18 +3,20 @@
 #include <math.h>
 #include <stdbool.h>
 
-#define numBlocks 20
 // number of blocks in the input set
-#define chromLength numBlocks
+#define numBlocks 20
 // length of chromosome
-#define popSize 10
+#define chromLength numBlocks
 // number of chromosomes in population
-#define mutateChance 5
+#define popSize 10
 // % chance that a mutation will happen when mutating a chromosome
+#define mutateChance 5
+// contains the heights of blocks
 int blocks[numBlocks];
+// contains popSize amount of chromosomes describing the sorting of blocks into two towers
 bool generation[popSize][chromLength];
 
-void readFile(int blocks[], int fileLength)
+void readFile(int fileLength)
 {
     FILE *fp = fopen("input.txt", "r");
 
@@ -45,7 +47,7 @@ void generateBlockHeights()
 
     for (int i = 0; i < numBlocks; i++)
     {
-        blocks[i] = rand();
+        blocks[i] = rand() % 1000;
     }
 
     return;
@@ -69,18 +71,16 @@ void mutateChromosome(int nChromosome)
 
     for (int nGene = 0; nGene < chromLength; nGene++)
     {
-        if (rand() > (RAND_MAX * (mutateChance / 100)))
-        {
-            generation[nChromosome][nGene] = !generation[nChromosome][nGene];
-        }
+        int gene = rand() % chromLength;
+        generation[nChromosome][gene] = !generation[nChromosome][gene];
     }
 
     return;
 }
 
-unsigned long long int heightOfTower(bool *chromosome, bool b) // Assignment 4.
+int heightOfTower(bool *chromosome, bool b) // Assignment 4.
 {
-    unsigned long long int height = 0;
+    int height = 0;
 
     for (int i = 0; i < chromLength; i++)
     {
@@ -122,7 +122,7 @@ void printChromosome(int nChromosome)
     return;
 }
 
-int measureFitness()
+int measureFitness(int nChromosome) // Measures how equal are the tower heights for the input chromosome
 {
 }
 
