@@ -21,7 +21,7 @@
 // % chance that a chromosome will be mutated
 #define mutateChance 2
 // % chance that two chromosomes will be crossed over
-#define crossOverChance 0.01
+#define crossOverChance 0.1
 // how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
 #define stagnant 100
 // contains the heights of blocks
@@ -41,7 +41,7 @@ void readFile(int fileLength)
 
     for (int i = 0; i < fileLength; i++)
     {
-        fscanf(fp, "%d", &blocks[i]);
+        // fscanf(fp, "%d", &blocks[i]);
 
         if (fscanf(fp, "%d", &blocks[i]) != 1) // For debugging, remove later.
         {
@@ -60,7 +60,7 @@ void generateBlockHeights()
 
     for (int i = 0; i < numBlocks; i++)
     {
-        blocks[i] = rand() % 1000;
+        blocks[i] = 1 + rand() % 1000;
     }
 
     return;
@@ -150,17 +150,17 @@ int measureFitness(int nChromosome)
 
 void eliminateWeak(int worst, int best)
 {
-    for (int length = 0; length < chromLength; length++) // Replaces worst with best
+    for (int length = 0; length < chromLength; length++) // Replaces worst chromosome with best chromosome.
     {
         generation[worst][length] = generation[best][length];
     }
 }
 
-int simulateGenerations(int nTimes)
+int simulateGenerations(int nTimes, int *bestChromosome)
 {
     int stagnantGenerations = 0; // If reaches stagnant, ends simulation as this is assumed to be the best possible result.
-    int bestDiff = 21459789;
-    int bestChromosome = 0; // Doesn't redeclare as this program is using the elitist approach.
+    int bestDiff = 2147483646;
+    *bestChromosome = 0; // Doesn't redeclare as this program is using the elitist approach.
     int n;
 
     for (n = 0; n < nTimes; n++)
@@ -176,7 +176,7 @@ int simulateGenerations(int nTimes)
             if (current < bestDiff)
             {
                 bestDiff = current;
-                bestChromosome = k;
+                *bestChromosome = k;
                 improved = true;
             }
 
@@ -185,6 +185,11 @@ int simulateGenerations(int nTimes)
                 worstDiff = current;
                 worstChromosome = k;
             }
+        }
+
+        if (bestDiff <= 1)
+        {
+            return n;
         }
 
         if (improved)
@@ -198,11 +203,10 @@ int simulateGenerations(int nTimes)
             if (stagnantGenerations >= stagnant)
             {
                 return n;
-                break;
             }
         }
 
-        eliminateWeak(worstChromosome, bestChromosome);
+        eliminateWeak(worstChromosome, *bestChromosome);
 
         for (int nChromsome = 0; nChromsome < popSize; nChromsome++)
         /*
@@ -211,7 +215,7 @@ int simulateGenerations(int nTimes)
         */
         {
 
-            if (nChromsome == bestChromosome)
+            if (nChromsome == *bestChromosome)
             {
                 continue; // Preserves the best chromosome.
             }
@@ -222,21 +226,14 @@ int simulateGenerations(int nTimes)
 
             if (rand() < (RAND_MAX / 100) * crossOverChance)
             {
-                int chromosome1;
-
-                do
-                {
-                    chromosome1 = rand() % popsize;
-                } while (chromosome1 == bestChromosome);
-
                 int chromosome2;
 
                 do // Ensures that the 2nd crossover chromosome is different from the chromosome 1 and the best one in this generation.
                 {
                     chromosome2 = rand() % popSize;
-                } while (chromosome2 == chromosome1 || chromosome2 == bestChromosome);
+                } while (chromosome2 == nChromsome || chromosome2 == *bestChromosome);
 
-                crossOver(chromosome1, chromosome2);
+                crossOver(nChromsome, chromosome2);
             }
         }
     }
