@@ -19,9 +19,9 @@
 // number of chromosomes in population
 #define popSize 10
 // % chance that a chromosome will be mutated
-#define mutateChance 2
+#define mutateChance 10
 // % chance that two chromosomes will be crossed over
-#define crossOverChance 0.1
+#define crossOverChance 5
 // how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
 #define stagnant 100
 // contains the heights of blocks
@@ -240,11 +240,82 @@ int simulateGenerations(int nTimes, int *bestChromosome)
     return n;
 }
 
+void printTowers(int chromosome)
+{
+    int leftCount = 0;
+    int rightCount = 0;
+    int leftBlocks[numBlocks];
+    int rightBlocks[numBlocks];
+
+    for (int i = 0; i < numBlocks; i++)
+    {
+        if (generation[chromosome][i] == true)
+        {
+            rightBlocks[rightCount] = blocks[i];
+            rightCount++;
+        }
+        else
+        {
+            leftBlocks[leftCount] = blocks[i];
+            leftCount++;
+        }
+    }
+
+    if (leftCount > rightCount)
+    {
+        int diff = leftCount - rightCount;
+
+        // Print excess blocks on the left tower
+        for (int i = 0; i < diff; i++)
+        {
+            printf("+------+\n");
+            printf("| %4d |\n", leftBlocks[i]);
+            printf("+------+\n");
+        }
+
+        // Print remaining blocks side-by-side
+        for (int k = 0; k < rightCount; k++)
+        {
+            printf("+------+    +------+\n");
+            printf("| %4d |    | %4d |\n", leftBlocks[diff + k], rightBlocks[k]);
+            printf("+------+    +------+\n");
+        }
+    }
+    else
+    {
+        int diff = rightCount - leftCount;
+
+        // Print excess blocks on the right tower (12 spaces = 8 for left box + 4 gap)
+        for (int i = 0; i < diff; i++)
+        {
+            printf("            +------+\n");
+            printf("            | %4d |\n", rightBlocks[i]);
+            printf("            +------+\n");
+        }
+
+        // Print remaining blocks side-by-side
+        for (int k = 0; k < leftCount; k++)
+        {
+            printf("+------+    +------+\n");
+            printf("| %4d |    | %4d |\n", leftBlocks[k], rightBlocks[diff + k]);
+            printf("+------+    +------+\n");
+        }
+    }
+
+    printf("\nLeft Tower:  %d\n", heightOfTower(generation[chromosome], false));
+    printf("Right Tower: %d\n", heightOfTower(generation[chromosome], true));
+    printf("Difference:  %d\n", measureFitness(chromosome));
+}
+
 int main(void)
 {
+    int finalChromosome;
 
     generateBlockHeights();
     generateChromosomes();
+    int result = simulateGenerations(10000, &finalChromosome);
+    printf("Loop when diverged: %d\n", result);
+    printTowers(finalChromosome);
 
     return 0;
 }
