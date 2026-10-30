@@ -23,10 +23,10 @@
 #define popSize 10
 
 // % chance that a chromosome will be mutated
-int mutateChance = 0;
+int mutateChance = 80;
 
 // % chance that two chromosomes will be crossed over
-int crossOverChance = 0;
+int crossOverChance = 65;
 
 // how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
 #define stagnant 100
