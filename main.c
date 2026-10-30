@@ -14,18 +14,31 @@
 
 // number of blocks in the input set
 #define numBlocks 20
+
 // length of chromosome
 #define chromLength numBlocks
+
 // number of chromosomes in population
 #define popSize 10
+
 // % chance that a chromosome will be mutated
-#define mutateChance 10
+// #define mutateChance 10
+
+// % chance that a chromosome will be mutated, used for testing.
+int mutateChance = 0;
+
 // % chance that two chromosomes will be crossed over
-#define crossOverChance 5
+// #define crossOverChance 2
+
+// % chance that two chromosomes will be crossed over, used for testing.
+int crossOverChance = 0;
+
 // how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
 #define stagnant 100
+
 // contains the heights of blocks
 int blocks[numBlocks];
+
 // contains popSize amount of chromosomes describing the sorting of blocks into two towers
 bool generation[popSize][chromLength];
 
@@ -41,14 +54,7 @@ void readFile(int fileLength)
 
     for (int i = 0; i < fileLength; i++)
     {
-        // fscanf(fp, "%d", &blocks[i]);
-
-        if (fscanf(fp, "%d", &blocks[i]) != 1) // For debugging, remove later.
-        {
-            printf("Error reading block %d\n", i);
-            fclose(fp);
-            return;
-        } // Last line to remove.
+        fscanf(fp, "%d", &blocks[i]);
     }
     fclose(fp);
 
@@ -56,6 +62,9 @@ void readFile(int fileLength)
 }
 
 void generateBlockHeights()
+/*
+    Mostly for testing as input will be a .txt file?
+*/
 {
 
     for (int i = 0; i < numBlocks; i++)
@@ -265,7 +274,7 @@ void printTowers(int chromosome)
     {
         int diff = leftCount - rightCount;
 
-        // Print excess blocks on the left tower
+        // Start printing left side first..
         for (int i = 0; i < diff; i++)
         {
             printf("+------+\n");
@@ -273,7 +282,6 @@ void printTowers(int chromosome)
             printf("+------+\n");
         }
 
-        // Print remaining blocks side-by-side
         for (int k = 0; k < rightCount; k++)
         {
             printf("+------+    +------+\n");
@@ -285,7 +293,7 @@ void printTowers(int chromosome)
     {
         int diff = rightCount - leftCount;
 
-        // Print excess blocks on the right tower (12 spaces = 8 for left box + 4 gap)
+        // Start printing right tower first.
         for (int i = 0; i < diff; i++)
         {
             printf("            +------+\n");
@@ -293,7 +301,6 @@ void printTowers(int chromosome)
             printf("            +------+\n");
         }
 
-        // Print remaining blocks side-by-side
         for (int k = 0; k < leftCount; k++)
         {
             printf("+------+    +------+\n");
@@ -307,15 +314,67 @@ void printTowers(int chromosome)
     printf("Difference:  %d\n", measureFitness(chromosome));
 }
 
+void testSimulations(int nSettings, int nSeeds, int nTimes)
+/*
+    Purely used for testing, to optimize and get the best results. My test arguments will be left in the main function.
+*/
+{
+    int step = 100 / nSettings; // n amount of settings, spaced evenly.
+    double bestAvgDiff = 2147483646.0;
+    int bestMutate = 0;
+    int bestCross = 0;
+
+    printf("Mut%% | Cross%% | Avg Diff | Avg Generations\n");
+
+    for (int m = 0; m < nSettings; m++)
+    {
+        for (int c = 0; c < nSettings; c++)
+        {
+            mutateChance = m * step;
+            crossOverChance = c * step;
+
+            double totalDiff = 0;
+            double totalGens = 0;
+
+            for (int seed = 0; seed < nSeeds; seed++)
+            {
+                int bestChromosome;
+
+                srand(seed);
+                generateBlockHeights();
+                generateChromosomes();
+
+                totalGens += simulateGenerations(nTimes, &bestChromosome);
+                totalDiff += measureFitness(bestChromosome);
+            }
+
+            double avgDiff = totalDiff / nSeeds;
+            double avgGens = totalGens / nSeeds;
+
+            printf("%3d%% |  %3d%%  |  %6.2f  |     %7.1f\n", mutateChance, crossOverChance, avgDiff, avgGens);
+
+            if (avgDiff < bestAvgDiff)
+            {
+                bestAvgDiff = avgDiff;
+                bestMutate = mutateChance;
+                bestCross = crossOverChance;
+            }
+        }
+    }
+
+    printf("\nBest setting: mutateChance = %d%%, crossOverChance = %d%% (Avg Diff: %.2f)\n", bestMutate, bestCross, bestAvgDiff);
+}
+
 int main(void)
 {
-    int finalChromosome;
+    testSimulations(100, 100, 10000);
 
-    generateBlockHeights();
-    generateChromosomes();
-    int result = simulateGenerations(10000, &finalChromosome);
-    printf("Loop when diverged: %d\n", result);
-    printTowers(finalChromosome);
+    // int finalChromosome;
+    // readFile(numBlocks);
+    // generateChromosomes();
+    // int result = simulateGenerations(10000, &finalChromosome);
+    // printf("Number of generations it took: %d\n", result);
+    // printTowers(finalChromosome);
 
     return 0;
 }
