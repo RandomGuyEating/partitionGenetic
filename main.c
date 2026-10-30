@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <time.h>
 
 /*
     Elitist evolution strategy. The single best and worst are found, the worst is replaced with the best and the original
     best is kept unchanged.
 
-    As this technically is a O(n * n^2) time complexity problem and we don't know if towerHeights can ever reach a minimum difference
+    As this technically is a O(n^2) time complexity problem and we don't know if towerHeights can ever reach a minimum difference
     of 0 or any other number for that matter. To evaluate when to stop I tried measuring if there was any improvement in between the best
     chromosomes of each generation as I save them from each generation.
 */
@@ -22,15 +23,9 @@
 #define popSize 10
 
 // % chance that a chromosome will be mutated
-// #define mutateChance 10
-
-// % chance that a chromosome will be mutated, used for testing.
 int mutateChance = 0;
 
 // % chance that two chromosomes will be crossed over
-// #define crossOverChance 2
-
-// % chance that two chromosomes will be crossed over, used for testing.
 int crossOverChance = 0;
 
 // how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
@@ -149,9 +144,6 @@ int measureFitness(int nChromosome)
     Measures how equal are the tower heights for the input chromosome
 */
 {
-    /* Maybe make the function calculate not absolute difference, but use smth similar to my gradient descent, where big diffs
-    get penalized more and low diffs are rewarded more. Maybe helps converge to good answer faster? Since there is only one answer,
-    escaping local minima isn't an issue, thus don't need to make random jumps, just need to make the guesses tighter the longer it goes*/
     int diff = abs(heightOfTower(generation[nChromosome], true) - heightOfTower(generation[nChromosome], false));
 
     return diff;
@@ -367,14 +359,17 @@ void testSimulations(int nSettings, int nSeeds, int nTimes)
 
 int main(void)
 {
-    testSimulations(100, 100, 10000);
+    // testSimulations(10, 100, 10000);
 
-    // int finalChromosome;
-    // readFile(numBlocks);
-    // generateChromosomes();
-    // int result = simulateGenerations(10000, &finalChromosome);
-    // printf("Number of generations it took: %d\n", result);
-    // printTowers(finalChromosome);
+    srand(time(NULL));
+
+    int finalChromosome;
+
+    readFile(numBlocks);
+    generateChromosomes();
+    int result = simulateGenerations(10000, &finalChromosome);
+    printf("Number of generations it took: %d\n", result);
+    printTowers(finalChromosome);
 
     return 0;
 }
