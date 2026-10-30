@@ -88,7 +88,10 @@ void mutateChromosome(int nChromosome)
     return;
 }
 
-int heightOfTower(bool *chromosome, bool b) // Assignment 4.
+int heightOfTower(bool *chromosome, bool b)
+/*
+    Returns height of either right or left tower as specified in the arguments.
+*/
 {
     int height = 0;
 
@@ -115,7 +118,7 @@ void crossOver(int chr1, int chr2)
     {
         bool temp = generation[chr1][i];           // Copy chr1 gene.
         generation[chr1][i] = generation[chr2][i]; // Put chr2 part gene into chr1.
-        generation[chr2][i] = temp;                // Put saved chr1 part gene into chr2.
+        generation[chr2][i] = temp;                // Put copied chr1 part gene into chr2.
     }
 
     return;
@@ -132,7 +135,10 @@ void printChromosome(int nChromosome)
     return;
 }
 
-int measureFitness(int nChromosome) // Measures how equal are the tower heights for the input chromosome
+int measureFitness(int nChromosome)
+/*
+    Measures how equal are the tower heights for the input chromosome
+*/
 {
     /* Maybe make the function calculate not absolute difference, but use smth similar to my gradient descent, where big diffs
     get penalized more and low diffs are rewarded more. Maybe helps converge to good answer faster? Since there is only one answer,
@@ -152,36 +158,26 @@ void eliminateWeak(int worst, int best)
 
 int simulateGenerations(int nTimes)
 {
+    int stagnantGenerations = 0; // If reaches stagnant, ends simulation as this is assumed to be the best possible result.
+    int bestDiff = 21459789;
+    int bestChromosome = 0; // Doesn't redeclare as this program is using the elitist approach.
+    int n;
 
-    for (int n = 0; n < nTimes; n++)
+    for (n = 0; n < nTimes; n++)
     {
-        int bestChromosome; // Redeclares every loop to keep track of best chromosome in this generation, not all;
-        int worstChromosome;
+        int worstChromosome = 0; // Redeclares every loop to keep track of the worst chromosome in this generation, not all.
+        bool improved = false;   // Keeps track if a new best chromosome was found.
+        int worstDiff = -1;
 
-        int bestDiff = 21459789;
-        int worstDiff = 0;
-
-        int stagnantGenerations = 0;
-
-        for (int k = 0; k < popSize; k++) // Finds the strongest and the weakest chromosomes
+        for (int k = 0; k < popSize; k++) // Finds the strongest and the weakest chromosomes.
         {
             int current = measureFitness(k);
 
-            if (current <= bestDiff)
+            if (current < bestDiff)
             {
                 bestDiff = current;
                 bestChromosome = k;
-                stagnantGenerations = 0;
-            }
-
-            else // If there is no improvement over the best chromosome for some times, ends simulation
-            {
-                stagnantGenerations++;
-                if (stagnantGenerations >= stagnant)
-                {
-                    return n;
-                    break;
-                }
+                improved = true;
             }
 
             if (current >= worstDiff)
@@ -191,16 +187,33 @@ int simulateGenerations(int nTimes)
             }
         }
 
+        if (improved)
+        {
+            stagnantGenerations = 0;
+        }
+
+        else
+        {
+            stagnantGenerations++;
+            if (stagnantGenerations >= stagnant)
+            {
+                return n;
+                break;
+            }
+        }
+
         eliminateWeak(worstChromosome, bestChromosome);
 
         for (int nChromsome = 0; nChromsome < popSize; nChromsome++)
-        // Goes through each chromosome with %chance to mutate or crossover.
-        // % are defined at the start of the program.
+        /*
+            Goes through each chromosome with %chance to mutate or crossover.
+            % are defined at the start of the program.
+        */
         {
 
             if (nChromsome == bestChromosome)
             {
-                continue; // Saves the best chromosome.
+                continue; // Preserves the best chromosome.
             }
             if (rand() < (RAND_MAX / 100) * mutateChance)
             {
@@ -209,10 +222,16 @@ int simulateGenerations(int nTimes)
 
             if (rand() < (RAND_MAX / 100) * crossOverChance)
             {
-                int chromosome1 = rand() % popSize;
-                int chromosome2;
+                int chromosome1;
 
                 do
+                {
+                    chromosome1 = rand() % popsize;
+                } while (chromosome1 == bestChromosome);
+
+                int chromosome2;
+
+                do // Ensures that the 2nd crossover chromosome is different from the chromosome 1 and the best one in this generation.
                 {
                     chromosome2 = rand() % popSize;
                 } while (chromosome2 == chromosome1 || chromosome2 == bestChromosome);
@@ -221,7 +240,7 @@ int simulateGenerations(int nTimes)
             }
         }
     }
-    return 0;
+    return n;
 }
 
 int main(void)
