@@ -3,9 +3,13 @@
 #include <math.h>
 #include <stdbool.h>
 
-/* Elitist evolution strategy. The single best and worst are found, the worst is replaced with the best and the original
-    best is kept unchanged
+/*
+    Elitist evolution strategy. The single best and worst are found, the worst is replaced with the best and the original
+    best is kept unchanged.
 
+    As this technically is a O(n * n^2) time complexity problem and we don't know if towerHeights can ever reach a minimum difference
+    of 0 or any other number for that matter. To evaluate when to stop I tried measuring if there was any improvement in between the best
+    chromosomes of each generation as I save them from each generation.
 */
 
 // number of blocks in the input set
@@ -18,6 +22,8 @@
 #define mutateChance 2
 // % chance that two chromosomes will be crossed over
 #define crossOverChance 0.01
+// how many times will the code simulate evolution when the best chromosome doesn't change anymore. Can be treated as a sort of 'accuracy'
+#define stagnant 100
 // contains the heights of blocks
 int blocks[numBlocks];
 // contains popSize amount of chromosomes describing the sorting of blocks into two towers
@@ -128,7 +134,7 @@ void printChromosome(int nChromosome)
 
 int measureFitness(int nChromosome) // Measures how equal are the tower heights for the input chromosome
 {
-    /* Maybe make the function calcualte not absolute difference, but use smth similar to my gradient descent, where big diffs
+    /* Maybe make the function calculate not absolute difference, but use smth similar to my gradient descent, where big diffs
     get penalized more and low diffs are rewarded more. Maybe helps converge to good answer faster? Since there is only one answer,
     escaping local minima isn't an issue, thus don't need to make random jumps, just need to make the guesses tighter the longer it goes*/
     int diff = abs(heightOfTower(generation[nChromosome], true) - heightOfTower(generation[nChromosome], false));
@@ -144,7 +150,7 @@ void eliminateWeak(int worst, int best)
     }
 }
 
-int simulateGenerations(int nTimes, double accuracy)
+int simulateGenerations(int nTimes)
 {
 
     for (int n = 0; n < nTimes; n++)
@@ -155,6 +161,8 @@ int simulateGenerations(int nTimes, double accuracy)
         int bestDiff = 21459789;
         int worstDiff = 0;
 
+        int stagnantGenerations = 0;
+
         for (int k = 0; k < popSize; k++) // Finds the strongest and the weakest chromosomes
         {
             int current = measureFitness(k);
@@ -163,6 +171,17 @@ int simulateGenerations(int nTimes, double accuracy)
             {
                 bestDiff = current;
                 bestChromosome = k;
+                stagnantGenerations = 0;
+            }
+
+            else // If there is no improvement over the best chromosome for some times, ends simulation
+            {
+                stagnantGenerations++;
+                if (stagnantGenerations >= stagnant)
+                {
+                    return n;
+                    break;
+                }
             }
 
             if (current >= worstDiff)
@@ -176,7 +195,7 @@ int simulateGenerations(int nTimes, double accuracy)
 
         for (int nChromsome = 0; nChromsome < popSize; nChromsome++)
         // Goes through each chromosome with %chance to mutate or crossover.
-        //% are defined at the start of the program.
+        // % are defined at the start of the program.
         {
 
             if (nChromsome == bestChromosome)
@@ -196,12 +215,13 @@ int simulateGenerations(int nTimes, double accuracy)
                 do
                 {
                     chromosome2 = rand() % popSize;
-                } while (chromosome2 == chromosome1 && chromosome2 == bestChromosome);
+                } while (chromosome2 == chromosome1 || chromosome2 == bestChromosome);
 
                 crossOver(chromosome1, chromosome2);
             }
         }
     }
+    return 0;
 }
 
 int main(void)
