@@ -3,14 +3,21 @@
 #include <math.h>
 #include <stdbool.h>
 
+/* Elitist evolution strategy. The single best and worst are found, the worst is replaced with the best and the original
+    best is kept unchanged
+
+*/
+
 // number of blocks in the input set
 #define numBlocks 20
 // length of chromosome
 #define chromLength numBlocks
 // number of chromosomes in population
 #define popSize 10
-// % chance that a mutation will happen when mutating a chromosome
-#define mutateChance 5
+// % chance that a chromosome will be mutated
+#define mutateChance 2
+// % chance that two chromosomes will be crossed over
+#define crossOverChance 0.01
 // contains the heights of blocks
 int blocks[numBlocks];
 // contains popSize amount of chromosomes describing the sorting of blocks into two towers
@@ -69,11 +76,8 @@ void generateChromosomes()
 void mutateChromosome(int nChromosome)
 {
 
-    for (int nGene = 0; nGene < chromLength; nGene++)
-    {
-        int gene = rand() % chromLength;
-        generation[nChromosome][gene] = !generation[nChromosome][gene];
-    }
+    int gene = rand() % chromLength;
+    generation[nChromosome][gene] = !generation[nChromosome][gene];
 
     return;
 }
@@ -100,7 +104,7 @@ int heightOfTower(bool *chromosome, bool b) // Assignment 4.
 
 void crossOver(int chr1, int chr2)
 {
-    int cutLocation = rand() % chromLength;
+    int cutLocation = 1 + (rand()) % (chromLength - 1);
     for (int i = cutLocation; i < chromLength; i++)
     {
         bool temp = generation[chr1][i];           // Copy chr1 gene.
@@ -124,6 +128,80 @@ void printChromosome(int nChromosome)
 
 int measureFitness(int nChromosome) // Measures how equal are the tower heights for the input chromosome
 {
+    /* Maybe make the function calcualte not absolute difference, but use smth similar to my gradient descent, where big diffs
+    get penalized more and low diffs are rewarded more. Maybe helps converge to good answer faster? Since there is only one answer,
+    escaping local minima isn't an issue, thus don't need to make random jumps, just need to make the guesses tighter the longer it goes*/
+    int diff = abs(heightOfTower(generation[nChromosome], true) - heightOfTower(generation[nChromosome], false));
+
+    return diff;
+}
+
+void eliminateWeak(int worst, int best)
+{
+    for (int length = 0; length < chromLength; length++) // Replaces worst with best
+    {
+        generation[worst][length] = generation[best][length];
+    }
+}
+
+int simulateGenerations(int nTimes, double accuracy)
+{
+
+    for (int n = 0; n < nTimes; n++)
+    {
+        int bestChromosome; // Redeclares every loop to keep track of best chromosome in this generation, not all;
+        int worstChromosome;
+
+        int bestDiff = 21459789;
+        int worstDiff = 0;
+
+        for (int k = 0; k < popSize; k++) // Finds the strongest and the weakest chromosomes
+        {
+            int current = measureFitness(k);
+
+            if (current <= bestDiff)
+            {
+                bestDiff = current;
+                bestChromosome = k;
+            }
+
+            if (current >= worstDiff)
+            {
+                worstDiff = current;
+                worstChromosome = k;
+            }
+        }
+
+        eliminateWeak(worstChromosome, bestChromosome);
+
+        for (int nChromsome = 0; nChromsome < popSize; nChromsome++)
+        // Goes through each chromosome with %chance to mutate or crossover.
+        //% are defined at the start of the program.
+        {
+
+            if (nChromsome == bestChromosome)
+            {
+                continue; // Saves the best chromosome.
+            }
+            if (rand() < (RAND_MAX / 100) * mutateChance)
+            {
+                mutateChromosome(nChromsome);
+            }
+
+            if (rand() < (RAND_MAX / 100) * crossOverChance)
+            {
+                int chromosome1 = rand() % popSize;
+                int chromosome2;
+
+                do
+                {
+                    chromosome2 = rand() % popSize;
+                } while (chromosome2 == chromosome1 && chromosome2 == bestChromosome);
+
+                crossOver(chromosome1, chromosome2);
+            }
+        }
+    }
 }
 
 int main(void)
